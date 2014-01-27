@@ -6,7 +6,7 @@ Bundler.require :default, :test
 
 RSpec.configure do |config|
   config.before(:suite) do
-    Dragonfly[:images].configure_with(:imagemagick)
+    Dragonfly.app(:images).configure_with(:imagemagick)
   end
 
   config.before(:suite) do

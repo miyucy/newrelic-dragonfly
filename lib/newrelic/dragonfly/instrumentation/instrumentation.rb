@@ -31,10 +31,9 @@ DependencyDetection.defer do
     [
      Dragonfly::Job::Fetch,
      Dragonfly::Job::Process,
-     Dragonfly::Job::Encode,
      Dragonfly::Job::Generate,
      Dragonfly::Job::FetchFile,
-     Dragonfly::Job::FetchUrl
+     Dragonfly::Job::FetchUrl,
     ].each do |klass|
       klass.class_eval do
         add_method_tracer :apply
@@ -43,92 +42,45 @@ DependencyDetection.defer do
   end
 
   executes do
-    class Dragonfly::Analyser
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :analyse
+    [
+     Dragonfly::ImageMagick::Analysers::ImageProperties,
+     Dragonfly::ImageMagick::Generators::Convert,
+     Dragonfly::ImageMagick::Generators::Plain,
+     Dragonfly::ImageMagick::Generators::Plasma,
+     Dragonfly::ImageMagick::Generators::Text,
+     Dragonfly::ImageMagick::Processors::Convert,
+     Dragonfly::ImageMagick::Processors::Encode,
+     Dragonfly::ImageMagick::Processors::Thumb,
+    ].each do |klass|
+      klass.class_eval do
+        include NewRelic::Agent::MethodTracer
+        add_method_tracer :call
+      end
     end
-    class Dragonfly::Encoder
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :encode
-    end
-    class Dragonfly::Generator
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :generate
-    end
-    class Dragonfly::Processor
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :process
-    end
-    module Dragonfly::Shell
+  end
+
+  executes do
+    class Dragonfly::Shell
       include NewRelic::Agent::MethodTracer
       add_method_tracer :run
     end
   end
 
   executes do
-    class Dragonfly::ImageMagick::Analyser
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :width
-      add_method_tracer :height
-      add_method_tracer :aspect_ratio
-      add_method_tracer :portrait?
-      add_method_tracer :portrait
-      add_method_tracer :landscape?
-      add_method_tracer :landscape
-      add_method_tracer :depth
-      add_method_tracer :number_of_colours
-      add_method_tracer :number_of_colors
-      add_method_tracer :format
-      add_method_tracer :image?
-    end
-    class Dragonfly::ImageMagick::Encoder
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :encode
-    end
-    class Dragonfly::ImageMagick::Generator
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :plain
-      add_method_tracer :plasma
-      add_method_tracer :text
-    end
-    class Dragonfly::ImageMagick::Processor
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :resize
-      add_method_tracer :auto_orient
-      add_method_tracer :crop
-      add_method_tracer :flip
-      add_method_tracer :flop
-      add_method_tracer :greyscale
-      add_method_tracer :grayscale
-      add_method_tracer :resize_and_crop
-      add_method_tracer :rotate
-      add_method_tracer :strip
-      add_method_tracer :thumb
-      add_method_tracer :convert
-    end
-    module Dragonfly::ImageMagick::Utils
-      include NewRelic::Agent::MethodTracer
-      add_method_tracer :convert
-      add_method_tracer :identify
-      add_method_tracer :raw_identify
-    end
-  end
-
-  executes do
     class Dragonfly::DataStorage::FileDataStore
       include NewRelic::Agent::MethodTracer
-      add_method_tracer :store
-      add_method_tracer :retrieve
+      add_method_tracer :write
+      add_method_tracer :read
       add_method_tracer :destroy
     end
   end
 end
 
 DependencyDetection.defer do
-  @name = :dragonfly_s3datastore
+  @name = :dragonfly_s3_data_store
 
   depends_on do
-    defined?(::Fog) and not NewRelic::Control.instance['disable_dragonfly_s3datastore']
+    defined?(::Dragonfly::S3DataStore) and not NewRelic::Control.instance['disable_dragonfly_s3_data_store']
   end
 
   executes do
@@ -138,8 +90,8 @@ DependencyDetection.defer do
   executes do
     class Dragonfly::DataStorage::S3DataStore
       include NewRelic::Agent::MethodTracer
-      add_method_tracer :store
-      add_method_tracer :retrieve
+      add_method_tracer :write
+      add_method_tracer :read
       add_method_tracer :destroy
     end
   end
