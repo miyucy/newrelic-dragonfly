@@ -6,7 +6,14 @@ Bundler.require :default, :test
 
 RSpec.configure do |config|
   config.before(:suite) do
-    Dragonfly.app(:images).configure_with(:imagemagick)
+    Fog.mock!
+  end
+
+  config.before(:suite) do
+    Dragonfly.logger = Logger.new STDOUT
+    Dragonfly.app(:images).configure do
+      plugin :imagemagick
+    end
   end
 
   config.before(:suite) do
@@ -15,8 +22,9 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    @engine = NewRelic::Agent.instance.stats_engine
-    @engine.clear_stats
+    agent = NewRelic::Agent.instance
+    agent.stats_engine.clear_stats
+    agent.transaction_sampler.reset!
   end
 end
 

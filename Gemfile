@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :test do
+  gem 'dragonfly-s3_data_store'
   gem 'pry-debugger'
   gem 'rack-test'
   gem 'rspec'
