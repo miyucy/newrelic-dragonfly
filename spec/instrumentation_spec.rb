@@ -18,6 +18,12 @@ describe Newrelic::Dragonfly do
     agent.transaction_sampler.last_sample.to_s.should include 'Controller/Rack/Dragonfly::App'
   end
 
+  it 'include file instrumentation' do
+    get app.create.fetch(uid).url
+    puts agent.transaction_sampler.last_sample.to_s
+    agent.transaction_sampler.last_sample.to_s.should include 'Dragonfly::FileDataStore'
+  end
+
   it 'include job instrumentation' do
     get app.create.fetch(uid).process(:thumb, '32x32').encode(:jpg).url
     agent.transaction_sampler.last_sample.to_s.should include 'Dragonfly::Job::Fetch'

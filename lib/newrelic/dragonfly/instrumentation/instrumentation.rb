@@ -67,7 +67,7 @@ DependencyDetection.defer do
   end
 
   executes do
-    class Dragonfly::DataStorage::FileDataStore
+    class Dragonfly::FileDataStore
       include NewRelic::Agent::MethodTracer
       add_method_tracer :write
       add_method_tracer :read
